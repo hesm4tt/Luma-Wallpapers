@@ -31,14 +31,19 @@ struct PosterService {
             log("Container scan: \(current) of \(total) inode numbers checked.")
         }) else { throw AppError.message("Could not scan application containers.") }
         log("Scan found \(paths.count) candidate containers. Checking identifiers…")
+        var accessFailures = 0
+        var identifierFailures = 0
         for path in paths {
-            guard let handle = try? access(path) else { continue }
+            guard let handle = try? access(path) else { accessFailures += 1; continue }
             var buf = [CChar](repeating: 0, count: 1024)
             let length = getxattr(path, "com.apple.containermanager.identifier", &buf, buf.count - 1, 0, 0)
             worse_query_release(handle)
             if length > 0, String(cString: buf) == "com.apple.PosterBoard" { log("PosterBoard container found."); return path }
+            if length <= 0 { identifierFailures += 1 }
         }
-        throw AppError.message("PosterBoard was not found. Container detection may not work on this device.")
+        log("Checked \(paths.count) candidates: \(accessFailures) access failures, \(identifierFailures) identifier read failures.")
+        if paths.isEmpty { throw AppError.message("No application container paths were returned by the scan.") }
+        throw AppError.message("PosterBoard was not found among \(paths.count) candidates. See the activity log for access and identifier failures.")
     }
     func records() throws -> [Installed] {
         guard fm.fileExists(atPath: journal.path) else { return [] }

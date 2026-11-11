@@ -28,7 +28,9 @@
 
 #import <Foundation/Foundation.h>
 
-NSArray<NSString *> *pathleak(NSString *filter, uint64_t max_inode);
-NSArray<NSString *> *pathleak_with_progress(NSString *filter, uint64_t max_inode, void (^progress)(uint64_t, uint64_t));
+// Returns a normalized direct child of the requested directory, or nil.
+NSString * _Nullable pathleak_direct_child(NSString * _Nonnull candidate, NSString * _Nonnull directory);
+NSArray<NSString *> * _Nullable pathleak(NSString * _Nonnull filter, uint64_t max_inode);
+NSArray<NSString *> * _Nullable pathleak_with_progress(NSString * _Nonnull filter, uint64_t max_inode, void (^ _Nullable progress)(uint64_t, uint64_t));
 
 #endif /* pathleak_h */

@@ -33,6 +33,18 @@
 
 // It might be possible to derive a sane inode value automagically by just creating a file, doing stat() on it, getting *that* file's inode, then using that for the max_inode count.
 
+
+NSString *pathleak_direct_child(NSString *candidate, NSString *directory) {
+    NSString *normalized = [candidate hasPrefix:@"/private/var/"] ? [candidate substringFromIndex:8] : candidate;
+    NSString *base = [directory hasPrefix:@"/private/var/"] ? [directory substringFromIndex:8] : directory;
+    while (base.length > 1 && [base hasSuffix:@"/"]) base = [base substringToIndex:base.length - 1];
+    NSString *prefix = [base isEqualToString:@"/"] ? @"/" : [base stringByAppendingString:@"/"];
+    if (![normalized hasPrefix:prefix]) return nil;
+    NSString *child = [normalized substringFromIndex:prefix.length];
+    if (child.length == 0 || [child containsString:@"/"]) return nil;
+    return normalized;
+}
+
 NSArray<NSString *> *pathleak_with_progress(NSString *path, uint64_t max_inode, void (^progress)(uint64_t, uint64_t)) {
     // Sanity checks
     if (path.length == 0 || max_inode < 1) return nil;
@@ -43,13 +55,10 @@ NSArray<NSString *> *pathleak_with_progress(NSString *path, uint64_t max_inode, 
     
     // Set everything up
     struct statfs sfs;
-    if (statfs(dir.fileSystemRepresentation, &sfs) != 0) return nil;
+    if (statfs(dir.fileSystemRepresentation, &sfs) != 0) {
+        if (statfs("/private/var", &sfs) != 0 && statfs("/var", &sfs) != 0) return nil;
+    }
     fsid_t fsid = sfs.f_fsid;
-    
-    char prefix[PATH_MAX];
-    if (![dir getFileSystemRepresentation: prefix maxLength: sizeof(prefix)]) return nil;
-    size_t prefix_length = strlen(prefix);
-    if (prefix_length == 1 && prefix[0] == '/') prefix_length = 0;
     
     NSFileManager *files = [NSFileManager defaultManager];
     NSMutableArray<NSString *> *result = [NSMutableArray array];
@@ -63,12 +72,10 @@ NSArray<NSString *> *pathleak_with_progress(NSString *path, uint64_t max_inode, 
         ssize_t n = fsgetpath(buffer, sizeof(buffer), &fsid, inode);
         if (n <= 0) continue;
         
-        if (strncmp(buffer, prefix, prefix_length) != 0) continue;
-        if (buffer[prefix_length] != '/') continue;
-        if (strchr(buffer + prefix_length + 1, '/')) continue;
-        
-        NSString *string = [files stringWithFileSystemRepresentation: buffer length: strlen(buffer)];
-        if (string) [result addObject: string];
+        NSString *candidate = [files stringWithFileSystemRepresentation: buffer length: strlen(buffer)];
+        if (!candidate) continue;
+        NSString *child = pathleak_direct_child(candidate, dir);
+        if (child) [result addObject:child];
     }
     return result;
 }
