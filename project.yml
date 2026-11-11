@@ -1,0 +1,32 @@
+name: LumaTendies
+options:
+  bundleIdPrefix: com.example
+packages:
+  ZIPFoundation:
+    path: Vendor/ZIPFoundation
+targets:
+  LumaTendies:
+    type: application
+    platform: iOS
+    deploymentTarget: '16.0'
+    sources:
+      - App
+      - Vendor/WorseQuery
+      - Resources
+    dependencies:
+      - package: ZIPFoundation
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hesm4tt.Luma
+        PRODUCT_NAME: LumaTendies
+        SWIFT_VERSION: '5.0'
+        SWIFT_OBJC_BRIDGING_HEADER: App/Bridge.h
+        CODE_SIGN_ENTITLEMENTS: App/Luma.entitlements
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Luma
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        TARGETED_DEVICE_FAMILY: 1
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        MARKETING_VERSION: 1.1.0
+        CURRENT_PROJECT_VERSION: 2

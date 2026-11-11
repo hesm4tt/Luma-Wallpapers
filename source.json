@@ -1,0 +1,26 @@
+{
+  "name": "Luma Wallpapers",
+  "identifier": "com.hesm4tt.luma.source",
+  "sourceURL": "https://raw.githubusercontent.com/hesm4tt/Luma-Wallpapers/main/source.json",
+  "apps": [
+    {
+      "name": "Luma",
+      "bundleIdentifier": "com.hesm4tt.Luma",
+      "developerName": "Luma Project",
+      "subtitle": "Custom .tendies wallpapers",
+      "localizedDescription": "Import custom .tendies wallpapers, queue your favorites, and apply them to PosterBoard. Features a live activity log and a light blue glass design. Requires a working App Group entitlement and a compatible iOS version; device compatibility is unverified. Back up your device before applying.",
+      "iconURL": "https://raw.githubusercontent.com/hesm4tt/Luma-Wallpapers/main/App/Assets.xcassets/AppIcon.appiconset/Luma.png",
+      "tintColor": "57B9E4",
+      "versions": [
+        {
+          "version": "1.1.0",
+          "date": "2026-11-11",
+          "downloadURL": "https://github.com/hesm4tt/Luma-Wallpapers/releases/download/v1.1.0/Luma-1.1.0-unsigned.ipa",
+          "size": 1873834,
+          "minOSVersion": "26.0",
+          "localizedDescription": "New light blue glass design, app icon, and detailed live application activity."
+        }
+      ]
+    }
+  ]
+}
